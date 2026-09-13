@@ -1,0 +1,11 @@
+# Text is stored LF and checked out however the contributor's platform wants it.
+* text=auto eol=lf
+
+# The catalogue is packed binary, and it is the one file this cartridge cannot
+# start without. Git detects that on its own; this says so out loud anyway,
+# because a line-ending normalisation applied to a .bin does not fail — it
+# produces a file that parses to nothing, on the contributor's machine only.
+*.bin    binary
+*.png    binary
+*.jpg    binary
+*.woff2  binary

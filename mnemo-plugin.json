@@ -1,0 +1,47 @@
+{
+  "name": "@mnemosyne-plugins/mnemo-cosmos",
+  "displayName": "Cosmos",
+  "version": "0.1.0",
+  "category": "Research",
+  "vendor": "Mnemosyne Labs",
+  "license": "MIT",
+  "description": "An offline sky atlas wired to your own memory. Every star, cluster, nebula and galaxy on screen carries its catalogue identifier — HIP 32349, M31, NGC 224 — so you can ask what your own observing notes already say about the object you are looking at. Shows the sky for any instant and any place you name, with the Sun, Moon and planets at their computed positions, rise and set times, and the Moon's phase. Then it can quiz you: it hides an object's name, asks which one it is, and remembers when to ask again.",
+  "descriptionI18n": {
+    "en": "An offline sky atlas wired to your own memory. Every star, cluster, nebula and galaxy on screen carries its catalogue identifier — HIP 32349, M31, NGC 224 — so you can ask what your own observing notes already say about the object you are looking at. Shows the sky for any instant and any place you name, with the Sun, Moon and planets at their computed positions, rise and set times, and the Moon's phase. Then it can quiz you: it hides an object's name, asks which one it is, and remembers when to ask again.",
+    "fr": "Un atlas du ciel hors ligne, branché sur votre propre mémoire. Chaque étoile, amas, nébuleuse et galaxie à l'écran porte son identifiant de catalogue — HIP 32349, M31, NGC 224 — pour demander ce que vos propres notes d'observation disent déjà de l'objet que vous regardez. Affiche le ciel pour n'importe quel instant et n'importe quel lieu que vous nommez, avec le Soleil, la Lune et les planètes à leur position calculée, les heures de lever et de coucher, et la phase de la Lune. Puis il peut vous interroger : il masque le nom d'un objet, demande lequel c'est, et retient quand vous reposer la question.",
+    "es": "Un atlas del cielo sin conexión, conectado a tu propia memoria. Cada estrella, cúmulo, nebulosa y galaxia en pantalla lleva su identificador de catálogo — HIP 32349, M31, NGC 224 — para que preguntes qué dicen ya tus propias notas de observación sobre el objeto que estás mirando. Muestra el cielo para cualquier instante y cualquier lugar que indiques, con el Sol, la Luna y los planetas en su posición calculada, las horas de salida y puesta, y la fase de la Luna. Luego puede examinarte: oculta el nombre de un objeto, pregunta cuál es, y recuerda cuándo volver a preguntártelo."
+  },
+  "keywords": [
+    "astronomy",
+    "stars",
+    "constellations",
+    "messier",
+    "ngc",
+    "hipparcos",
+    "sky",
+    "planets",
+    "ephemeris",
+    "education",
+    "flashcards",
+    "spaced-repetition",
+    "three.js"
+  ],
+  "permissions": [
+    "vault:read",
+    "vault:write"
+  ],
+  "updateStrategy": "git",
+  "entrypoints": {
+    "renderer": "index.html"
+  },
+  "widgets": [
+    {
+      "id": "mnemo-cosmos-main",
+      "icon": "🌌",
+      "name": "Cosmos",
+      "route": "index.html",
+      "defaultWidth": 1180,
+      "defaultHeight": 840
+    }
+  ]
+}

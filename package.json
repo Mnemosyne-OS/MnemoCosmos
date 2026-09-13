@@ -1,0 +1,40 @@
+{
+  "name": "@mnemosyne-plugins/mnemo-cosmos",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "An offline sky atlas wired to Mnemosyne memory. Star data is HYG 4.1 and OpenNGC (CC BY-SA 4.0), constellation figures are d3-celestial (BSD), ephemerides are astronomy-engine (MIT). See NOTICE.md.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "dev:cartridge": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "catalog": "node scripts/build-catalog.mjs"
+  },
+  "dependencies": {
+    "@mnemosyne_os/cartridge-sdk": "workspace:*",
+    "astronomy-engine": "2.1.19",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "three": "0.184.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.0",
+    "@types/react": "18.3.28",
+    "@types/react-dom": "18.3.7",
+    "@types/three": "0.184.1",
+    "@vitejs/plugin-react": "4.7.0",
+    "jsdom": "29.1.1",
+    "typescript": "5.9.3",
+    "vite": "5.4.21",
+    "vitest": "1.6.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mnemosyne-OS/MnemoCosmos"
+  }
+}

@@ -1,0 +1,9 @@
+.catalog-cache/
+node_modules/
+
+# 🚨 The repository root ignores `*.bin` globally, which silently swallows the
+# one file this cartridge cannot start without. Staged without this line, the
+# commit looks complete — 42 files — and the installed cartridge reports that
+# the catalogue could not be read, on every machine. Found by counting the
+# staged files, not by anything failing.
+!public/catalog/catalog.bin

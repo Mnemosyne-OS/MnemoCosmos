@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Must agree with resolve.alias in vite.config.ts, or tsc and the bundler
+       disagree about what compiles — and tsc is the one that says so first. */
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  /* Tests are out of the app build on purpose: shipping must not depend on the
+     test runner being installed. BOTH extensions must be listed, or a
+     .test.tsx rides into the shipping build. */
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test-setup.ts"]
+}
