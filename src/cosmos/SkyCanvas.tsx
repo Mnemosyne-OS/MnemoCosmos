@@ -31,6 +31,9 @@ import {
 } from './sky';
 import { dsoKey, starKey } from './identity';
 import type { BodyPosition } from './solar';
+import { listenToGestures } from '../gestures/listen';
+import { getSpeeds } from '../gestures/settings';
+import { slideLook, zoomLook } from '../gestures/moves';
 
 export interface SkyLayers {
   figures: boolean;
@@ -85,6 +88,8 @@ interface Props {
   constellationLabel: (c: Constellation) => string;
   /** Localised body name, keyed by the astronomy-engine body string. */
   bodyLabel: (body: string) => string;
+  /** The hand's « frame again » (doc 106 §32): back to the page's default look. */
+  onRecenter?: () => void;
 }
 
 interface Label {
@@ -101,7 +106,7 @@ const CLICK_SLOP = 4;
 
 export function SkyCanvas({
   stars, dsos, constellations, bodies, layers, look, onLook, onPick,
-  selected, quizTarget, hiddenLabel, constellationLabel, bodyLabel,
+  selected, quizTarget, hiddenLabel, constellationLabel, bodyLabel, onRecenter,
 }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const canvasBox = useRef<{ width: number; height: number }>({ width: 1, height: 1 });
@@ -550,10 +555,16 @@ export function SkyCanvas({
     // the slop, every drag selects whatever was under the finger at the end.
     if (d.moved > CLICK_SLOP) return;
 
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    pickAt(e.clientX, e.clientY, (e.currentTarget as HTMLElement).getBoundingClientRect());
+  };
+
+  // One picking path for a click and for a hand's « select », so the two can
+  // never disagree on which object is under the point.
+  const pickAt = (clientX: number, clientY: number, rect: DOMRect) => {
+    if (!rect.width || !rect.height) return;
     const pointer = {
-      x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
-      y: -(((e.clientY - rect.top) / rect.height) * 2 - 1),
+      x: ((clientX - rect.left) / rect.width) * 2 - 1,
+      y: -(((clientY - rect.top) / rect.height) * 2 - 1),
     };
     const ly = layersRef.current;
     const candidates = pickablesRef.current.filter((p) => {
@@ -565,6 +576,34 @@ export function SkyCanvas({
     const chosen = hit ? candidates[hit.index]! : null;
     onPickRef.current(chosen ? { kind: chosen.kind, index: chosen.index } : null);
   };
+
+  const pickAtRef = useRef(pickAt);
+  pickAtRef.current = pickAt;
+  const onRecenterRef = useRef(onRecenter);
+  onRecenterRef.current = onRecenter;
+
+  // The hand (doc 106 §32): the host sends these only while Cosmos is the
+  // full-screen window. A slide is the mouse drag, a zoom narrows the field,
+  // at the speeds the person chose in the gesture panel.
+  useEffect(() => listenToGestures({
+    pan: ({ dx, dy }) => {
+      const next = slideLook(lookRef.current, dx, dy, canvasBox.current.height, getSpeeds().move);
+      if (next) onLookRef.current(next);
+    },
+    depth: ({ factor }) => {
+      const next = zoomLook(lookRef.current, factor, getSpeeds().zoom);
+      if (next) onLookRef.current(next);
+    },
+    zoom: ({ factor }) => {
+      const next = zoomLook(lookRef.current, factor, getSpeeds().zoom);
+      if (next) onLookRef.current(next);
+    },
+    recenter: () => onRecenterRef.current?.(),
+    select: ({ x, y }) => {
+      const el = host.current;
+      if (el) pickAtRef.current(x, y, el.getBoundingClientRect());
+    },
+  }), []);
 
   const onWheel = (e: React.WheelEvent) => {
     onLookRef.current(zoom(lookRef.current, e.deltaY > 0 ? 1 : -1));

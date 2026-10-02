@@ -1,6 +1,6 @@
 {
   "name": "@mnemosyne-plugins/mnemo-cosmos",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "An offline sky atlas wired to Mnemosyne memory. Star data is HYG 4.1 and OpenNGC (CC BY-SA 4.0), constellation figures are d3-celestial (BSD), ephemerides are astronomy-engine (MIT). See NOTICE.md.",

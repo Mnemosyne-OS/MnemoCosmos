@@ -29,6 +29,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MnemoCartridgeSDK } from '@mnemosyne_os/cartridge-sdk';
+import { writeKey } from '../gestures/store';
 import type { Catalog } from '../cosmos/catalog';
 import type { Marked } from '../cosmos/SkyCanvas';
 import { dsoKey, starKey } from '../cosmos/identity';
@@ -167,7 +168,9 @@ export function ReviewPanel({ catalog, onMark, onLookAt, onHideLabel, onClose }:
   const write = (next: ReviewState) => {
     if (store.kind === 'unsaved') { setStore({ ...store, state: next }); return; }
     setStore({ kind: 'ready', state: next });
-    sdk.invoke('state.set', { state: { [KEY]: next } }).catch((err: unknown) => {
+    // Merged, never sent alone: the host replaces the whole blob, and the
+    // gesture speeds live in it too (gestures/store).
+    writeKey(KEY, next).catch((err: unknown) => {
       const msg = err instanceof Error ? err.message : String(err);
       console.warn('[cosmos] review state not saved:', msg);
       if (alive.current) setStore({ kind: 'unsaved', state: next, why: t('review.noLoad') });

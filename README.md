@@ -186,6 +186,7 @@ src/mnemo/review.ts          Leitner, pure — ported from the Atlas cartridge
 src/mnemo/levels.ts          the families you can be asked about
 src/mnemo/session.ts         a run: length, streak, accuracy — ported
 src/mnemo/ReviewPanel.tsx    families → length → run → results
+src/gestures/                the hand: speeds, the gesture panel, the merging writer
 ```
 
 Picking is **not** a raycaster. A raycaster's threshold is in world units, so
@@ -209,6 +210,18 @@ Cartridges installed from MnemoHub itself do not count against that slot.
 Nothing is built, downloaded or compiled on your machine: `dist/` is committed
 to this repository and is read straight off your disk.
 
+## Your hands
+
+Needs Mnemosyne OS 1.7.0 or later, with hand tracking on. Put Cosmos in full
+screen. Pinch and move to slide the sky. Pinch and bring your hand toward the
+camera to come closer, or pinch with both hands to zoom. Hold your open hands
+still to go back to the starting view, and pinch and hold on a point to open
+that object. A hand select goes through the same picking as a click.
+
+The ✋ button in the top bar lists these gestures, says whether Mnemosyne
+granted them, and sets two speeds: move and zoom. The speeds are saved with the
+rest of the cartridge's state.
+
 ## What it asks for, and why
 
 - **It reads your memory, and it writes only its own.** The cartridge asks for
@@ -217,6 +230,9 @@ to this repository and is read straight off your disk.
   It never writes to your other vaults. A sandbox vault is a store the cartridge
   owns, and making anything in it permanent is a decision you make in the shell,
   not one the cartridge can take.
+- **It receives intentions from your hands, never the camera.** `gesture:receive`
+  lets Mnemosyne send moves such as « turn by 12 px » while this window is full
+  screen. The cartridge never sees the camera image or your hand.
 - **Asking your memory costs an inference.** The memory panel runs a model over
   your own vaults, so on a cloud route it is billed. It is a button you press,
   never a panel that fills itself.

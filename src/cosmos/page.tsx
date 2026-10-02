@@ -25,6 +25,7 @@ import { CosmosMemory } from '../mnemo/CosmosMemory';
 import { ReviewPanel } from '../mnemo/ReviewPanel';
 import { useI18n } from '../i18n/useI18n';
 import type { Key } from '../i18n/strings';
+import { GesturePanel } from '../gestures/GesturePanel';
 
 type Load =
   | { kind: 'reading' }
@@ -50,6 +51,7 @@ export function Page() {
   const { t, lang } = useI18n();
   const [load, setLoad] = useState<Load>({ kind: 'reading' });
   const [look, setLook] = useState<Look>(DEFAULT_LOOK);
+  const [gestOpen, setGestOpen] = useState(false);
   const [layers, setLayers] = useState<SkyLayers>(DEFAULT_LAYERS);
   const [selected, setSelected] = useState<SkyObject | null>(null);
   const [marked, setMarked] = useState<Marked | null>(null);
@@ -261,6 +263,7 @@ export function Page() {
         hiddenLabel={hiddenLabel}
         constellationLabel={constellationLabel}
         bodyLabel={bodyLabel}
+        onRecenter={() => setLook(DEFAULT_LOOK)}
       />
 
       <header className="topbar">
@@ -277,10 +280,43 @@ export function Page() {
         <button type="button" className="btn btn-ghost" onClick={() => openPanel('about')}>
           {t('credits.open')}
         </button>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => setGestOpen(true)}
+          aria-label={t('gest.open')}
+          title={t('gest.open')}
+        >
+          ✋
+        </button>
         <button type="button" className="btn btn-accent" onClick={openReview}>
           {t('review.open')}
         </button>
       </header>
+
+      <GesturePanel
+        open={gestOpen}
+        onClose={() => setGestOpen(false)}
+        words={{
+          title: t('gest.title'), lead: t('gest.lead'), asking: t('gest.asking'), granted: t('gest.granted'),
+          refused: (why) => t('gest.refused', { why }), speeds: t('gest.speeds'), reset: t('gest.reset'),
+          loading: t('gest.loading'), unsaved: (why) => t('gest.unsaved', { why }),
+          inApp: t('gest.inApp'), os: t('gest.os'), close: t('gest.close'),
+        }}
+        speedRows={[{ key: 'move', label: t('gest.speed.move') }, { key: 'zoom', label: t('gest.speed.zoom') }]}
+        appRows={[
+          { icon: '🤏', text: t('gest.pan') },
+          { icon: '↕️', text: t('gest.depth') },
+          { icon: '🤏🤏', text: t('gest.zoom') },
+          { icon: '✋✋', text: t('gest.recenter') },
+          { icon: '👌', text: t('gest.select') },
+        ]}
+        osRows={[
+          { icon: '🖐️', text: t('gest.osFull') },
+          { icon: '✊', text: t('gest.osClose') },
+          { icon: '🤏', text: t('gest.osWindow') },
+        ]}
+      />
 
       {panel === 'search' && (
         <section className="panel search-panel">
