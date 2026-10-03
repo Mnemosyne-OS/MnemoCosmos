@@ -29,7 +29,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MnemoCartridgeSDK } from '@mnemosyne_os/cartridge-sdk';
-import { writeKey } from '../gestures/store';
+import { readStore, writeKey } from '../gestures/store';
 import type { Catalog } from '../cosmos/catalog';
 import type { Marked } from '../cosmos/SkyCanvas';
 import { dsoKey, starKey } from '../cosmos/identity';
@@ -139,10 +139,12 @@ export function ReviewPanel({ catalog, onMark, onLookAt, onHideLabel, onClose }:
   // ── the schedule ─────────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    sdk.invoke<Record<string, unknown>>('state.get')
+    // Through the store, never `state.get` directly: the host answers an
+    // envelope, and only the store takes the blob out of it.
+    readStore()
       .then((data) => {
         if (cancelled || !alive.current) return;
-        setStore({ kind: 'ready', state: parseState(data?.[KEY]) });
+        setStore({ kind: 'ready', state: parseState(data[KEY]) });
       })
       .catch((err: unknown) => {
         if (cancelled || !alive.current) return;
