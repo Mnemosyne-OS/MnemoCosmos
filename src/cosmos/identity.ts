@@ -74,11 +74,18 @@ export function readableDesignation(bf: string): string {
   // shape, so requiring the space left the raw packed string on screen for most
   // Bayer stars. Caught by a test, not by looking: `Kap1Scl` is unreadable
   // enough to pass for a designation.
-  const m = /^(\d*)([A-Za-z]{2,3})(\d?)\s*(\w{3})$/.exec(raw);
-  if (!m) return raw;
+  //
+  // 🪤 HYG pads too: `23    UMa` (Flamsteed alone, 1 505 stars), `37Xi 2Sgr`,
+  // `Mu 1Sco`. Read as raw, 17.6 % of the named stars were titled with four
+  // spaces, and searching « 23 UMa » found nothing. The letters are optional
+  // and every run of spaces is one.
+  const collapsed = raw.replace(/\s+/g, ' ');
+  const m = /^(\d*)\s*(?:([A-Za-z]{2,3})\s*(\d?))?\s*([A-Z][A-Za-z]{2})$/.exec(raw);
+  if (!m) return collapsed;
   const [, flam, letter, sup, con] = m;
-  const greek = GREEK[letter!];
-  if (!greek) return raw;
+  if (!letter) return flam ? `${flam} ${con}` : collapsed;
+  const greek = GREEK[letter];
+  if (!greek) return collapsed;
   const parts = [flam || '', `${greek}${sup ?? ''}`, con].filter(Boolean);
   return parts.join(' ');
 }

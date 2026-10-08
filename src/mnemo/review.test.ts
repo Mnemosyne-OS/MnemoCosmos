@@ -214,6 +214,19 @@ describe('the size of what we ask the host to hold', () => {
     expect(s.bytes).toBeLessThan(STATE_LIMIT_BYTES * 1.5);
   });
 
+  it('says « tight » between 80 % and the ceiling, where there is still room to act', () => {
+    const state = emptyState();
+    let i = 0;
+    // Measured every 100 cards, not after each one: stateSize serialises the
+    // whole store, so a per-card check made this test quadratic (7.5 s).
+    while (stateSize(state).bytes < STATE_LIMIT_BYTES * 0.85) {
+      for (let k = 0; k < 100; k++) state.cards[`FMA${i++}`] = { b: 3, d: 20000, n: 5 };
+    }
+    const s = stateSize(state);
+    expect(s.bytes).toBeLessThan(STATE_LIMIT_BYTES);
+    expect(s.tight).toBe(true);
+  });
+
   it('a realistic store is nowhere near the ceiling', () => {
     const state = emptyState();
     // Every named concept in the male atlas, all reviewed.

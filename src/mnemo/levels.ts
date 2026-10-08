@@ -85,11 +85,11 @@ const BRIGHT_STAR_MAG = 2.5;
 export function pool(catalog: Catalog, family: FamilyId): Askable[] {
   const starOf = (s: Star): Askable => {
     const o = toSkyObject(s);
-    return { id: starKey(s), name: o.name, group: s.con || 'sky' };
+    return { id: starKey(s), name: o.name, group: s.con || 'sky', kind: 'star' };
   };
   const dsoOf = (d: Dso): Askable => {
     const o = dsoToSkyObject(d);
-    return { id: dsoKey(d), name: o.name, group: d.type || 'sky' };
+    return { id: dsoKey(d), name: o.name, group: d.type || 'sky', kind: 'dso' };
   };
 
   // A star with no name is not askable: the answer would have to be printed as

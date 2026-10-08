@@ -88,11 +88,12 @@ export function Page() {
   const read = useCallback(() => {
     setLoad({ kind: 'reading' });
     Promise.all([
-      fetch(assetUrl('catalog/catalog.bin')).then((r) => {
+      // Rule 9: a read that never answers ends as an error, not « Reading the catalogue… » forever.
+      fetch(assetUrl('catalog/catalog.bin'), { signal: AbortSignal.timeout(15_000) }).then((r) => {
         if (!r.ok) throw new Error(`catalog.bin → HTTP ${r.status}`);
         return r.arrayBuffer();
       }),
-      fetch(assetUrl('catalog/constellations.json')).then((r) => {
+      fetch(assetUrl('catalog/constellations.json'), { signal: AbortSignal.timeout(15_000) }).then((r) => {
         if (!r.ok) throw new Error(`constellations.json → HTTP ${r.status}`);
         return r.json() as Promise<ConstellationFile>;
       }),
@@ -176,12 +177,15 @@ export function Page() {
 
   const onPick = useCallback((hit: { kind: 'star' | 'dso' | 'body'; index: number } | null) => {
     if (load.kind !== 'ready') return;
+    // During a review the sky is the question: a click on the ringed point
+    // opened its card, NAME included — the answer one click away.
+    if (reviewing) return;
     if (!hit) { setSelected(null); return; }
     if (hit.kind === 'star') { setSelected(toSkyObject(load.catalog.stars[hit.index]!)); return; }
     if (hit.kind === 'dso') { setSelected(dsoToSkyObject(load.catalog.dsos[hit.index]!)); return; }
     const b = bodies[hit.index];
     if (b) setSelected(bodyObject(b));
-  }, [load, bodies, bodyObject]);
+  }, [load, bodies, bodyObject, reviewing]);
 
   // A body moves. Its card has to move with it, or the coordinates on screen
   // are from whenever it was clicked and the altitude is simply wrong.

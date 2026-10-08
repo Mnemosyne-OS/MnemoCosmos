@@ -66,8 +66,17 @@ is still a sky.
 
 - Licence: MIT, declared in the package metadata
   (`https://registry.npmjs.org/astronomy-engine/latest`) and in the repository.
-- A runtime dependency, not redistributed data: it is installed from npm and
-  carries its own LICENSE file inside the package.
+- A runtime dependency, not redistributed data. ⚠️ Vite BUNDLES it into the
+  cartridge's JavaScript, so the MIT notice travels with the build too:
+  Copyright (c) 2019-2023 Don Cross. The package ships no LICENSE file; the
+  licence text is the header of its `astronomy.js` (read 05/10).
+
+## 3D rendering — MIT
+
+> **three** 0.184.0 — three.js authors. https://github.com/mrdoob/three.js
+
+- Licence: MIT. Bundled into the cartridge's JavaScript by Vite:
+  Copyright © 2010-2026 three.js authors.
 
 ---
 

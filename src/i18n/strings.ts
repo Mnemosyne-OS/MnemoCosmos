@@ -108,6 +108,7 @@ const en = {
   'memory.nothing': 'Your memory holds nothing about {name} yet. That is not an error: nothing has been written about it.',
   'memory.outside': 'This window is open outside Mnemosyne, so there is no memory to ask. Open the cartridge from the app.',
   'memory.failed': 'Your memory did not answer: {why}',
+  'memory.noReason': 'no reason given',
 
   // ── review ───────────────────────────────────────────────────────────────
   'review.title': 'Review',
@@ -195,6 +196,8 @@ const en = {
   'type.OCl': 'Open cluster',
   'type.GCl': 'Globular cluster',
   'type.Cl+N': 'Cluster with nebula',
+  'type.*': 'Star',
+  'type.Nova': 'Nova',
   'type.HII': 'H II region',
   'type.DrkN': 'Dark nebula',
   'type.EmN': 'Emission nebula',
@@ -326,6 +329,7 @@ const fr: Dict = {
   'memory.nothing': 'Votre mémoire ne contient encore rien sur {name}. Ce n’est pas une erreur : rien n’a été écrit à ce sujet.',
   'memory.outside': 'Cette fenêtre est ouverte hors de Mnemosyne : il n’y a aucune mémoire à interroger. Ouvrez la cartouche depuis l’application.',
   'memory.failed': 'Votre mémoire n’a pas répondu : {why}',
+  'memory.noReason': 'aucune raison donnée',
 
   'review.title': 'Révision',
   'review.open': 'Réviser ce que vous savez',
@@ -406,6 +410,9 @@ const fr: Dict = {
   'type.OCl': 'Amas ouvert',
   'type.GCl': 'Amas globulaire',
   'type.Cl+N': 'Amas avec nébuleuse',
+  'type.*': 'Étoile',
+  'type.Nova': 'Nova',
+  'review.unknown': '—',
   'type.HII': 'Région H II',
   'type.DrkN': 'Nébuleuse obscure',
   'type.EmN': 'Nébuleuse en émission',
@@ -533,6 +540,7 @@ const es: Dict = {
   'memory.nothing': 'Tu memoria todavía no contiene nada sobre {name}. No es un error: no se ha escrito nada al respecto.',
   'memory.outside': 'Esta ventana está abierta fuera de Mnemosyne, así que no hay memoria que consultar. Abre el cartucho desde la aplicación.',
   'memory.failed': 'Tu memoria no respondió: {why}',
+  'memory.noReason': 'sin motivo indicado',
 
   'review.title': 'Repaso',
   'review.open': 'Repasar lo que sabes',
@@ -613,6 +621,9 @@ const es: Dict = {
   'type.OCl': 'Cúmulo abierto',
   'type.GCl': 'Cúmulo globular',
   'type.Cl+N': 'Cúmulo con nebulosa',
+  'type.*': 'Estrella',
+  'type.Nova': 'Nova',
+  'review.unknown': '—',
   'type.HII': 'Región H II',
   'type.DrkN': 'Nebulosa oscura',
   'type.EmN': 'Nebulosa de emisión',

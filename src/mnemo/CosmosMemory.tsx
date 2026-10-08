@@ -75,7 +75,7 @@ export function CosmosMemory({ object }: { object: SkyObject | null }) {
       if (asked.current !== token) return;
       const text = (result?.text ?? result?.response ?? result?.content ?? result?.answer ?? '').trim();
       if (result?.success === false) {
-        setPhase({ kind: 'failed', message: result.error || 'Memory did not answer.' });
+        setPhase({ kind: 'failed', message: result.error || t('memory.noReason') });
         return;
       }
       // An empty reply and a "nothing found" reply are the same fact for the

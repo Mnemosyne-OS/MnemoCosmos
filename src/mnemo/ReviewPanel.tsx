@@ -168,6 +168,13 @@ export function ReviewPanel({ catalog, onMark, onLookAt, onHideLabel, onClose }:
   useEffect(() => () => { onMark(null); onHideLabel(null); }, [onMark, onHideLabel]);
 
   const write = (next: ReviewState) => {
+    // 🚨 Before the schedule is READ, `held` is an empty stand-in: writing it
+    // merged {one card} over the stored history and erased it (doc 115 pass,
+    // 05/10; doc 96's rule: a mutation before the first read writes nothing).
+    if (store.kind === 'loading') {
+      console.warn('[cosmos] review answer before the schedule was read: not written');
+      return;
+    }
     if (store.kind === 'unsaved') { setStore({ ...store, state: next }); return; }
     setStore({ kind: 'ready', state: next });
     // Merged, never sent alone: the host replaces the whole blob, and the
@@ -326,7 +333,7 @@ export function ReviewPanel({ catalog, onMark, onLookAt, onHideLabel, onClose }:
                   <button
                     type="button"
                     className="family-tile"
-                    disabled={!ok}
+                    disabled={!ok || store.kind === 'loading'}
                     onClick={() => setFamily(f)}
                   >
                     <span className="family-name">{familyName(f)}</span>

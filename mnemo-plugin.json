@@ -1,7 +1,7 @@
 {
   "name": "@mnemosyne-plugins/mnemo-cosmos",
   "displayName": "Cosmos",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "category": "Research",
   "vendor": "Mnemosyne Labs",
   "license": "MIT",

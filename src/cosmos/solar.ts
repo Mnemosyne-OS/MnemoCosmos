@@ -135,9 +135,10 @@ export function riseSetAt(body: BodyName, when: Date, place: Place | null): Rise
     const rise = SearchRiseSet(body, observer, +1, when, 1);
     const set = SearchRiseSet(body, observer, -1, when, 1);
     return { rise: rise ? rise.date : null, set: set ? set.date : null, searched: true };
-  } catch {
+  } catch (err) {
     // A failed search is not "it never rises". Reporting it as such would put a
     // confident astronomical claim on screen off the back of a thrown error.
+    console.warn('[cosmos] rise/set search failed, shown as unknown', body, err);
     return null;
   }
 }
@@ -196,6 +197,11 @@ export type PlaceProblem = 'latitude' | 'longitude' | 'elevation';
 export function readPlace(
   latitude: string, longitude: string, elevation: string, label: string,
 ): { ok: true; place: Place } | { ok: false; why: PlaceProblem } {
+  // 🚨 An EMPTY field is refused, never read: Number('') is 0, so an empty
+  // form saved « 0, 0 » — the Gulf of Guinea, the exact default §4.5 forbids —
+  // and every planet got a confident altitude and rise time there.
+  if (latitude.trim() === '') return { ok: false, why: 'latitude' };
+  if (longitude.trim() === '') return { ok: false, why: 'longitude' };
   const lat = Number(latitude.trim().replace(',', '.'));
   if (!Number.isFinite(lat) || lat < -90 || lat > 90) return { ok: false, why: 'latitude' };
   const lon = Number(longitude.trim().replace(',', '.'));

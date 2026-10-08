@@ -127,6 +127,12 @@ export interface Askable {
   id: string;
   name: string;
   group: string;
+  /**
+   * What kind of thing it is (a star, a deep-sky object). When the group runs
+   * short, distractors come from the same KIND first: in « All » the fallback
+   * offered a galaxy among three stars, which answers itself.
+   */
+  kind?: string;
 }
 
 export interface Question {
@@ -191,12 +197,29 @@ export function nextQuestion(
   const from = due.length ? due : fresh.length ? fresh : rest;
   const subject = from[Math.floor(r() * from.length)]!;
 
-  // Same group first — that is what makes a right answer mean something.
-  const sameGroup = pool.filter((a) => a.id !== subject.id && a.group === subject.group);
-  const others = pool.filter((a) => a.id !== subject.id && a.group !== subject.group);
+  // Same group first — that is what makes a right answer mean something —
+  // then the same kind, then anything.
+  // 🎭 Never two options of one NAME: the catalogue has real homonyms
+  // (« Antennae Galaxies » is NGC 4038 and NGC 4039, « Alnilam » a star and
+  // NGC 1990), and two identical options of which one is right is a coin toss.
+  const norm = (s: string) => s.trim().toLowerCase();
+  const others = pool.filter((a) => a.id !== subject.id);
+  const tiers = [
+    others.filter((a) => a.group === subject.group),
+    others.filter((a) => a.group !== subject.group && a.kind === subject.kind),
+    others.filter((a) => a.group !== subject.group && a.kind !== subject.kind),
+  ];
   const want = Math.min(optionCount - 1, pool.length - 1);
-  const distractors = pick(sameGroup, want, r);
-  if (distractors.length < want) distractors.push(...pick(others, want - distractors.length, r));
+  const names = new Set([norm(subject.name)]);
+  const distractors: Askable[] = [];
+  for (const tier of tiers) {
+    for (const a of pick(tier, tier.length, r)) {
+      if (distractors.length >= want) break;
+      if (names.has(norm(a.name))) continue;
+      names.add(norm(a.name));
+      distractors.push(a);
+    }
+  }
 
   const options = [subject, ...distractors];
   // Shuffle so the answer is not always first.

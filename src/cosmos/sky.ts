@@ -234,23 +234,24 @@ export const lookAt = (look: Look, ra: number, dec: number): Look =>
 
 /** Right ascension as hours, minutes and seconds, the way charts print it. */
 export function formatRa(deg: number): string {
-  const hours = (((deg % 360) + 360) % 360) / 15;
-  const h = Math.floor(hours);
-  const mFloat = (hours - h) * 60;
-  const m = Math.floor(mFloat);
-  const s = (mFloat - m) * 60;
+  // Rounded ONCE, in tenths of a second, then split: rounding the last field
+  // alone printed « 32m 60.0s » for 108 real objects (no carry into the minute).
+  const tenths = Math.round(((((deg % 360) + 360) % 360) / 15) * 36000) % (24 * 36000);
+  const h = Math.floor(tenths / 36000);
+  const m = Math.floor((tenths % 36000) / 600);
+  const s = (tenths % 600) / 10;
   return `${h}h ${String(m).padStart(2, '0')}m ${s.toFixed(1).padStart(4, '0')}s`;
 }
 
 /** Declination as signed degrees, arcminutes and arcseconds. */
 export function formatDec(deg: number): string {
   const sign = deg < 0 ? '-' : '+';
-  const a = Math.abs(deg);
-  const d = Math.floor(a);
-  const mFloat = (a - d) * 60;
-  const m = Math.floor(mFloat);
-  const s = (mFloat - m) * 60;
-  return `${sign}${d}° ${String(m).padStart(2, '0')}′ ${s.toFixed(0).padStart(2, '0')}″`;
+  // Same rule as formatRa: whole arcseconds first, then split (« 37′ 60″ » was Muliphein).
+  const total = Math.round(Math.abs(deg) * 3600);
+  const d = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${sign}${d}° ${String(m).padStart(2, '0')}′ ${String(s).padStart(2, '0')}″`;
 }
 
 /**

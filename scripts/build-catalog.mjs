@@ -71,7 +71,8 @@ const NOT_AN_OBJECT = new Set(['Dup', 'NonEx']);
  * M102 is still absent afterwards, and that is the source's position, not ours:
  * OpenNGC files it as a duplicate of M101.
  */
-const NOT_DEEP_SKY = new Set(['Star', '**', '*Ass']);
+// OpenNGC spells a single star `*` (not `Star`): 22 plain stars were kept as deep sky.
+const NOT_DEEP_SKY = new Set(['Star', '*', '**', '*Ass', 'Nova']);
 
 /** The languages the host speaks. */
 const LANGS = ['en', 'fr', 'es', 'de', 'pt', 'ru', 'zh'];
