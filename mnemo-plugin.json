@@ -1,7 +1,8 @@
 {
   "name": "@mnemosyne-plugins/mnemo-cosmos",
   "displayName": "Cosmos",
-  "version": "0.2.2",
+  "version": "0.3.0",
+  "icon": "public/favicon.svg",
   "category": "Research",
   "vendor": "Mnemosyne Labs",
   "license": "MIT",
@@ -54,5 +55,269 @@
       "defaultWidth": 1180,
       "defaultHeight": 840
     }
-  ]
+  ],
+  "agentActions": [
+    {
+      "id": "status",
+      "summary": "Read what Cosmos shows: the instant, the place, where the sky is turned, the layers and the open object card",
+      "effect": "read"
+    },
+    {
+      "id": "search",
+      "summary": "Find stars, deep-sky objects, the Sun, the Moon and planets by name or catalogue key",
+      "details": "Same search as the search panel: bodies first, then the brightest stars, then deep-sky objects, 40 at most. Keys look like HIP 32349, NGC 224; aliases like M31 or Sirius match too. Planets are found only while the planets layer is on.",
+      "effect": "read",
+      "params": {
+        "text": {
+          "type": "string",
+          "description": "At least 2 characters of a name, key or alias",
+          "maxLength": 100
+        },
+        "limit": {
+          "type": "number",
+          "description": "How many objects to answer, 1 to 40 (10 by default)",
+          "minimum": 1,
+          "maximum": 40
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    {
+      "id": "goTo",
+      "summary": "Open an object's card and turn the sky to it, as a search result does",
+      "details": "Takes a key (HIP 32349, NGC 224, M31) or a name as the person says it, in English, French or Spanish (Sirius, la planète Mars, la Lune, Saturno, nébuleuse d'Orion). Deep-sky common names are English (Andromeda Galaxy). Several matches are refused AMBIGUOUS with their keys. Refused while a review is open, because the sky is its question.",
+      "effect": "write",
+      "params": {
+        "object": {
+          "type": "string",
+          "description": "The object: its name as the person says it, or its key",
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "object"
+      ]
+    },
+    {
+      "id": "setTime",
+      "summary": "Show the sky at another instant, or move the instant by some hours",
+      "details": "Give at (ISO 8601, 2026-08-12T21:30:00Z, or now) or shiftHours (negative goes back), not both. Years 1000 to 3000.",
+      "effect": "write",
+      "params": {
+        "at": {
+          "type": "string",
+          "description": "An ISO 8601 instant, or now",
+          "maxLength": 40
+        },
+        "shiftHours": {
+          "type": "number",
+          "description": "Hours to move the instant on screen by",
+          "minimum": -876600,
+          "maximum": 876600
+        }
+      }
+    },
+    {
+      "id": "setPlace",
+      "summary": "Declare the place the sky is seen from, as the place form does, and keep it",
+      "details": "Altitudes, azimuths and rise and set times need a place. Nothing is geocoded: give the coordinates.",
+      "effect": "write",
+      "params": {
+        "latitude": {
+          "type": "number",
+          "description": "Degrees north",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Degrees east",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "elevation": {
+          "type": "number",
+          "description": "Metres above sea level (0 by default)",
+          "minimum": -500,
+          "maximum": 9000
+        },
+        "label": {
+          "type": "string",
+          "description": "What to call the place",
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ]
+    },
+    {
+      "id": "setLayers",
+      "summary": "Turn the sky's layers on or off and set the faintest star drawn, as the controls panel does",
+      "details": "Only the layers given change. magLimit runs from 1 to the catalogue's own limit (status says it).",
+      "effect": "write",
+      "params": {
+        "figures": {
+          "type": "boolean",
+          "description": "Constellation figures"
+        },
+        "constellationNames": {
+          "type": "boolean",
+          "description": "Constellation names"
+        },
+        "starNames": {
+          "type": "boolean",
+          "description": "Star names"
+        },
+        "deepSky": {
+          "type": "boolean",
+          "description": "Deep-sky objects"
+        },
+        "planets": {
+          "type": "boolean",
+          "description": "Sun, Moon and planets"
+        },
+        "grid": {
+          "type": "boolean",
+          "description": "The coordinate grid"
+        },
+        "magLimit": {
+          "type": "number",
+          "description": "Faintest star drawn (apparent magnitude)",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
+    },
+    {
+      "id": "setView",
+      "summary": "Zoom the sky in or out, set its field, centre it on the open object, or bring it back to its starting view",
+      "details": "reset wins over the others. zoom in halves the field, out doubles it. fov is the vertical field of view in degrees, 2 to 110: give zoom or fov, not both.",
+      "effect": "write",
+      "params": {
+        "zoom": {
+          "type": "string",
+          "description": "in (closer) or out (wider)",
+          "enum": [
+            "in",
+            "out"
+          ]
+        },
+        "fov": {
+          "type": "number",
+          "description": "Field of view in degrees",
+          "minimum": 2,
+          "maximum": 110
+        },
+        "centreOnSelected": {
+          "type": "boolean",
+          "description": "Turn the sky to the object whose card is open"
+        },
+        "reset": {
+          "type": "boolean",
+          "description": "Back to the starting view"
+        }
+      }
+    },
+    {
+      "id": "showConstellation",
+      "summary": "Turn the sky to a constellation, wide enough to see its figure",
+      "details": "Takes its name in Latin, English, French or Spanish (Orion, Grande Ourse, Osa Mayor, Cassiopée) or its abbreviation (UMa). Answers whether the figures layer is on: turn it on with setLayers if the person wants to see the lines.",
+      "effect": "write",
+      "params": {
+        "constellation": {
+          "type": "string",
+          "description": "The constellation's name as the person says it, or its abbreviation",
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "constellation"
+      ]
+    },
+    {
+      "id": "showPanel",
+      "summary": "Open one of Cosmos's panels, as its button does: search, place (time and place), credits, or review (the quiz)",
+      "details": "text fills the search panel. Opening search or credits closes a review, as the buttons do.",
+      "effect": "write",
+      "params": {
+        "panel": {
+          "type": "string",
+          "description": "search, place, credits or review",
+          "enum": [
+            "search",
+            "place",
+            "credits",
+            "review"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "description": "What to type in the search panel",
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "panel"
+      ]
+    },
+    {
+      "id": "closePanel",
+      "summary": "Close the object card, a panel or the review, as their close buttons do",
+      "details": "Without panel, closes everything open. Closing the review ends it on screen; answers already given stay saved.",
+      "effect": "write",
+      "params": {
+        "panel": {
+          "type": "string",
+          "description": "card (the object card), search, place, credits or review",
+          "enum": [
+            "card",
+            "search",
+            "place",
+            "credits",
+            "review"
+          ]
+        }
+      }
+    }
+  ],
+  "agentGuide": [
+    "Name an object or a constellation the way the person says it (« la planète Mars », « la Lune », « Sirius », « la Grande Ourse »): Cosmos finds it by its words, and a key (M31, HIP 32349) still works. Several matches are refused AMBIGUOUS with their keys: pick one and call again with the key.",
+    "To look at something: goTo for a star, a planet or a deep-sky object (its card opens); showConstellation for a constellation; setView zoom in or out to come closer or go wider; setView reset for the starting view.",
+    "Time: setTime shiftHours (« dans une heure » = 1, « demain » = 24, « hier » = -24) or at. Place: setPlace with the coordinates of the city the person names.",
+    "« Interroge-moi » / « quiz me »: showPanel review; the answers are given by hand in the review. closePanel closes the card, a panel or the review. While a review is open goTo is refused (REVIEWING)."
+  ],
+  "voiceCommands": {
+    "fr": [
+      "montre Jupiter",
+      "va à la nébuleuse d’Orion",
+      "montre la constellation de la Grande Ourse",
+      "zoome",
+      "avance d’une heure",
+      "affiche la grille",
+      "cache les noms des étoiles",
+      "interroge-moi sur le ciel"
+    ],
+    "en": [
+      "show Jupiter",
+      "go to the Orion Nebula",
+      "show the Big Dipper",
+      "zoom in",
+      "move forward one hour",
+      "show the grid",
+      "hide the star names",
+      "quiz me on the sky"
+    ],
+    "es": [
+      "muestra Júpiter",
+      "muestra la nebulosa de Orión",
+      "muestra la Osa Mayor",
+      "muestra la cuadrícula",
+      "oculta los nombres de las estrellas",
+      "cierra la ficha"
+    ]
+  }
 }

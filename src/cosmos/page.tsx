@@ -26,6 +26,9 @@ import { ReviewPanel } from '../mnemo/ReviewPanel';
 import { useI18n } from '../i18n/useI18n';
 import type { Key } from '../i18n/strings';
 import { GesturePanel } from '../gestures/GesturePanel';
+import { searchSky } from './skySearch';
+import { PLACE_KEY, storePlace } from './placeStore';
+import { CosmosAgentActions } from './CosmosAgentActions';
 
 type Load =
   | { kind: 'reading' }
@@ -44,9 +47,6 @@ const DEFAULT_LAYERS: SkyLayers = {
   magLimit: 6.5,
 };
 
-/** Where the human's declared observing place is kept between sessions. */
-const PLACE_KEY = 'mnemo-cosmos.place';
-
 export function Page() {
   const { t, lang } = useI18n();
   const [load, setLoad] = useState<Load>({ kind: 'reading' });
@@ -64,6 +64,8 @@ export function Page() {
   // one panel that has lost its mind. Seen on screen. So opening either one
   // closes the other, and only ever from these two helpers.
   const openReview = () => { setReviewing(true); setPanel('none'); setSelected(null); };
+  // The review's own close button, also what an agent's closePanel runs.
+  const closeReview = () => { setReviewing(false); setMarked(null); setHiddenLabel(null); };
   const openPanel = (p: 'about' | 'search' | 'place') => {
     setPanel((was) => (was === p ? 'none' : p));
     if (p !== 'place') setReviewing(false);
@@ -195,38 +197,15 @@ export function Page() {
   const riseSet = selectedBody ? riseSetAt(selectedBody.body, when, place) : null;
 
   // ── search ───────────────────────────────────────────────────────────────
-  const results = useMemo(() => {
-    if (load.kind !== 'ready') return [];
-    const q = query.trim().toLowerCase();
-    if (q.length < 2) return [];
-    const out: SkyObject[] = [];
-    const matches = (o: SkyObject) =>
-      o.name.toLowerCase().includes(q)
-      || o.id.toLowerCase().includes(q)
-      || o.aliases.some((a) => a.toLowerCase().includes(q));
-    // Sun, Moon and planets FIRST, and they are in here at all because someone
-    // typing "Jupiter" into a sky atlas means the planet. Left out, the search
-    // answered "nothing in the catalogue matches that" for the ten objects
-    // anyone would try first — which is true of the catalogue and false of the
-    // screen, since they are drawn right there.
-    for (const b of bodies) {
-      const o = bodyObject(b);
-      if (matches(o)) out.push(o);
-    }
-    // Stars are already brightest-first from the build script, so the first
-    // twenty hits are the twenty most prominent ones, not the first twenty rows.
-    for (const s of load.catalog.stars) {
-      if (out.length >= 20) break;
-      const o = toSkyObject(s);
-      if (matches(o)) out.push(o);
-    }
-    for (const d of load.catalog.dsos) {
-      if (out.length >= 40) break;
-      const o = dsoToSkyObject(d);
-      if (matches(o)) out.push(o);
-    }
-    return out;
-  }, [load, query, bodies, bodyObject]);
+  // Sun, Moon and planets are in here at all because someone typing "Jupiter"
+  // into a sky atlas means the planet. Left out, the search answered "nothing in
+  // the catalogue matches that" for the ten objects anyone would try first.
+  // One search (skySearch.ts), shared with the agent.
+  const bodyObjects = useMemo(() => bodies.map(bodyObject), [bodies, bodyObject]);
+  const results = useMemo(
+    () => (load.kind === 'ready' ? searchSky(load.catalog, bodyObjects, query) : []),
+    [load, query, bodyObjects],
+  );
 
   const goTo = (o: SkyObject) => {
     setSelected(o);
@@ -253,6 +232,13 @@ export function Page() {
 
   return (
     <main className="cosmos">
+      <CosmosAgentActions
+        catalog={catalog} bodies={bodyObjects} look={look} setLook={setLook} defaultLook={DEFAULT_LOOK}
+        layers={layers} setLayers={setLayers} when={when} setWhen={setWhen} place={place} setPlace={setPlace}
+        selected={selected} reviewing={reviewing} goTo={goTo}
+        constellations={constellations} panel={panel} setPanel={setPanel} setQuery={setQuery}
+        setSelected={setSelected} openReview={openReview} closeReview={closeReview}
+      />
       <SkyCanvas
         stars={catalog.stars}
         dsos={catalog.dsos}
@@ -372,6 +358,7 @@ export function Page() {
       </aside>
 
       <TimeAndPlace
+        key={place ? `${place.latitude},${place.longitude},${place.elevation},${place.label}` : 'none'}
         when={when} setWhen={setWhen}
         place={place} setPlace={setPlace}
         open={panel === 'place'}
@@ -494,7 +481,7 @@ export function Page() {
           onMark={setMarked}
           onLookAt={lookAtObject}
           onHideLabel={setHiddenLabel}
-          onClose={() => { setReviewing(false); setMarked(null); setHiddenLabel(null); }}
+          onClose={closeReview}
         />
       )}
     </main>
@@ -548,18 +535,14 @@ function TimeAndPlace({
     }
     setProblem(null);
     setPlace(read.place);
-    try {
-      localStorage.setItem(PLACE_KEY, JSON.stringify(read.place));
-    } catch (err) {
-      // The place still works for this session; only its persistence failed.
-      console.warn('[cosmos] place not stored:', err);
-    }
+    // The place still works for this session if only its persistence fails.
+    storePlace(read.place);
   };
 
   const clear = () => {
     setPlace(null);
     setLat(''); setLon(''); setElev(''); setLabel(''); setProblem(null);
-    try { localStorage.removeItem(PLACE_KEY); } catch { /* nothing was stored */ }
+    storePlace(null);
   };
 
   return (

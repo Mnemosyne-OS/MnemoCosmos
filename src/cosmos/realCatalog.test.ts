@@ -5,7 +5,8 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { decodeCatalog } from './catalog';
+import { decodeCatalog, type ConstellationFile } from './catalog';
+import { resolveObject } from './cosmosAgent';
 import { formatDec, formatRa } from './sky';
 import { readableDesignation } from './identity';
 import { readPlace } from './solar';
@@ -82,5 +83,20 @@ describe('quiz options', () => {
         expect(new Set(names).size, `${fam}: ${names.join(' / ')}`).toBe(names.length);
       }
     }
+  });
+});
+
+describe('an object named by voice, on the shipped catalogue', () => {
+  const consts = (JSON.parse(readFileSync(join(__dirname, '..', '..', 'public', 'catalog', 'constellations.json'), 'utf8')) as ConstellationFile).constellations;
+  it.each([
+    ["l'étoile Polaire", 'HIP 11767'],
+    ['Véga', 'HIP 91262'],
+    ['Antarès', 'HIP 80763'],
+    ['les Pléiades', 'Mel022'],
+    ["la nébuleuse d'Orion", 'NGC 1976'],
+    ["la galaxie d'Andromède", 'NGC 224'],
+    ['la nébuleuse du Crabe', 'NGC 1952'],
+  ])('%s is %s', (said, key) => {
+    expect(resolveObject(cat, [], said, consts).id).toBe(key);
   });
 });
